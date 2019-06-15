@@ -1,0 +1,2 @@
+# templated
+Simple document templating
