@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.FileExtensions;
@@ -6,6 +7,10 @@ using Microsoft.Extensions.Configuration.Json;
 using System.IO;
 using System.Linq;
 using Terminal.Gui;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MediatR;
+using MediatR.Pipeline;
 
 namespace templated
 {
@@ -13,6 +18,11 @@ namespace templated
     {
         static void Main(string[] args)
         {
+            var serviceProvider = new ServiceCollection()
+            .AddLogging();
+            ConfigureServices(serviceProvider);
+            var provider = serviceProvider.BuildServiceProvider();
+            
             Application.Init();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -26,6 +36,9 @@ namespace templated
                     })
                 }),
             });
+
+            var mediator = provider.GetRequiredService<IMediator>();
+
             top.Add(menu);
             var win = new Window (new Rect (0, 1, top.Frame.Width, top.Frame.Height-1), "Templates");
             top.Add (win);
@@ -74,6 +87,18 @@ namespace templated
             );
 
             Application.Run();
+        }
+
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddLogging(configure => configure.AddConsole());              
+            services.AddMediatR(Assembly.GetExecutingAssembly());
+            services.AddScoped<IMediator, Mediator>();
+            services.AddScoped<ServiceFactory>(p => p.GetService);
+            
+            //Pipeline
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
         }
 
         public static string UniquePath(string fullPath){

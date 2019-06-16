@@ -1,24 +1,37 @@
 # Templated - Simple document templating
 
-Intro paragraph
+In small business you often have a group of documents for a task that you want copied.
+This is simple templating which will take different template sets, and allow you to copy
+template instances from a given set.
+
+/templates
+
+- should include variations of different templates
+- selecting a template from the ui for a new instance will clone the template
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+1. Run the app by entering the following command in the command shell:
+
+   ```console
+    dotnet run
+   ```
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+Install the following:
 
-```
-Give examples
-```
+Install the following:
+
+- [.NET Core](https://dotnet.microsoft.com/download).
+- The [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp) from the VS Code Marketplace.
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+Copy exe from /dist/templated.exe
 
-Say what the step will be
+Either include the exe in path or put the templator relative to the file system to create the templates.
+i.e. Within the /templates/ folder
 
 ```
 Give the example
@@ -34,33 +47,34 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+xUnit testing
+
 
 ### Break down into end to end tests
 
-Explain what these tests test and why
+Testing templates being used
 
 ```
-Give an example
+dotnet test
 ```
 
 ### And coding style tests
 
-Explain what these tests test and why
+Editor.config
 
 ```
-Give an example
+Editor.config
 ```
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+```
+dotnet publish
+```
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [TerminalUI](https://github.com/migueldeicaza/gui.cs) - Terminal based ui
 
 ## Contributing
 
@@ -72,7 +86,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Scott Mackenzie** - *Initial work* - [Smacktech](https://github.com/smacken)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
@@ -82,7 +96,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* mmm
 
