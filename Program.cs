@@ -47,10 +47,9 @@ namespace templated
             var templatePath = args.Count() == 0 || string.IsNullOrEmpty(args[0]) 
                 ? Path.GetDirectoryName(appPath) 
                 : args[0];
-            var templates = Directory.EnumerateDirectories(templatePath)
-                .Select(x => x.Substring(x.LastIndexOf("\\") + 1));
+            var templates = mediator.Send(new AppPathRequest(appPath)).Result;
             var templatesList = new RadioGroup(new Rect(4, 3, top.Frame.Width, 200), templates.ToArray());
-            var onRunTemplate = new Button (3, 14 + templates.Count(), "Ok");
+            var onRunTemplate = new Button (3, 10 + templates.Count(), "Ok");
             var folderName = new TextField (18, 4 + templates.Count(), 40, "");
 
             onRunTemplate.Clicked = () => {
@@ -83,7 +82,7 @@ namespace templated
                 new Label (2, 4 + templates.Count(), "Folder: "),
                 folderName,
                 onRunTemplate,
-                new Button (10, 14 + templates.Count(), "Cancel")
+                new Button (10, 10 + templates.Count(), "Cancel")
             );
 
             Application.Run();
