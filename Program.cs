@@ -14,78 +14,77 @@ using MediatR.Pipeline;
 
 namespace templated
 {
+    public class TemplatedApp
+    {
+        public IConfiguration Config { get; set; }
+        public ServiceProvider Container { get; set; }
+    }
+
     class Program
     {
-        static void Main(string[] args)
+        public static TemplatedApp Bootstrap()
         {
             var serviceProvider = new ServiceCollection()
-            .AddLogging();
+                .AddLogging();
             ConfigureServices(serviceProvider);
             var provider = serviceProvider.BuildServiceProvider();
-            
-            Application.Init();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json");
             IConfiguration config = new ConfigurationBuilder().AddJsonFile("config.json", true, true).Build();
+            return new TemplatedApp {
+                Container = provider,
+                Config = config
+            };
+        }
+
+        static void Main(string[] args)
+        {
+            var app = Bootstrap();
+            var mediator = app.Container.GetRequiredService<IMediator>();
+
+            Application.Init();
             var top = Application.Top;
+            var tframe = top.Frame;
+            var win = new Window (new Rect (0, 1, top.Frame.Width, top.Frame.Height-1), "Templates");
             var menu = new MenuBar (new MenuBarItem [] {
                 new MenuBarItem ("_File", new MenuItem [] {
+                    new MenuItem ("_Open", "", null),
+                    new MenuItem ("_Close", "", () => Close ()),
                     new MenuItem ("_Quit", "", () => { 
+                        if (!Quit ()) return;
+                        top.Running = false; 
                         Application.RequestStop (); 
                     })
                 }),
+                new MenuBarItem ("_Edit", new MenuItem [] {
+                    new MenuItem ("_Copy", "", null),
+                    new MenuItem ("C_ut", "", null),
+                    new MenuItem ("_Paste", "", null)
+                })
             });
-
-            var mediator = provider.GetRequiredService<IMediator>();
-
-            top.Add(menu);
-            var win = new Window (new Rect (0, 1, top.Frame.Width, top.Frame.Height-1), "Templates");
-            top.Add (win);
-
+            
             var appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var templatePath = args.Count() == 0 || string.IsNullOrEmpty(args[0]) 
                 ? Path.GetDirectoryName(appPath) 
                 : args[0];
-            var templates = mediator.Send(new AppPathRequest(appPath)).Result;
-            var templatesList = new RadioGroup(new Rect(4, 3, top.Frame.Width, 200), templates.ToArray());
-            var onRunTemplate = new Button (3, 10 + templates.Count(), "Ok");
-            var folderName = new TextField (18, 4 + templates.Count(), 40, "");
+                        
+            var templatesView = new TemplatesView(mediator);
+            templatesView.Render(win, templatePath);
 
-            onRunTemplate.Clicked = () => {
-                var templateFolder = folderName.Text.ToString();
-                if (string.IsNullOrEmpty(templateFolder)){
-                    MessageBox.ErrorQuery(30, 6, "Error", "Please enter a folder.");
-                    return;
-                }
-                var baseDir = Directory.GetParent(Path.GetDirectoryName(templatePath)).FullName;
-                var folderPath = Path.Combine(baseDir, templateFolder);
-                var templateSelected = templates.ElementAt(templatesList.Selected);
-                if (Directory.Exists(folderPath)) folderPath = UniquePath(folderPath);
-                try
-                {
-                    Directory.CreateDirectory(folderPath);
-                    var templateFiles = Directory.EnumerateFiles(Path.Combine(templatePath, templateSelected)); 
-                    foreach(var templateFile in templateFiles){
-                        var fileName = templateFile.Substring(templateFile.LastIndexOf("\\")+1);
-                        File.Copy(templateFile, UniquePath(Path.Combine(folderPath, fileName)));
-                    }    
-                }
-                catch (System.Exception)
-                {
-                    MessageBox.ErrorQuery(30, 6, "Error", "Could not replicate template.");
-                }
-            };
-            win.Add(
-                new Label (3, 2, "Select template: "),
-                templatesList,
-                new Label (2, 4 + templates.Count(), "Folder: "),
-                folderName,
-                onRunTemplate,
-                new Button (10, 10 + templates.Count(), "Cancel")
-            );
-
+            top.Add(win, menu);
             Application.Run();
+        }
+
+        static bool Quit ()
+        {
+            var n = MessageBox.Query (50, 7, "Quit Demo", "Are you sure you want to quit this demo?", "Yes", "No");
+            return n == 0;
+        }
+
+        static void Close ()
+        {
+            MessageBox.ErrorQuery (50, 5, "Error", "There is nothing to close", "Ok");
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -98,22 +97,6 @@ namespace templated
             //Pipeline
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
-        }
-
-        public static string UniquePath(string fullPath){
-            int count = 1;
-
-            string fileNameOnly = Path.GetFileNameWithoutExtension(fullPath);
-            string extension = Path.GetExtension(fullPath);
-            string path = Path.GetDirectoryName(fullPath);
-            string newFullPath = fullPath;
-
-            while(File.Exists(newFullPath)) 
-            {
-                string tempFileName = string.Format("{0}({1})", fileNameOnly, count++);
-                newFullPath = Path.Combine(path, tempFileName + extension);
-            }
-            return newFullPath;
         }
     }
 }
