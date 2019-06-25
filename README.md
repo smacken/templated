@@ -4,7 +4,7 @@ In small business you often have a group of documents for a task that you want c
 This is simple templating which will take different template sets, and allow you to copy
 template instances from a given set.
 
-![tempalted](https://raw.githubusercontent.com/smacken/templated/master/doxfx/term.PNG)
+![tempalted](https://raw.githubusercontent.com/smacken/templated/master/docfx/term.PNG)
 
 /templates
 
