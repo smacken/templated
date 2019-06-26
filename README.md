@@ -23,10 +23,7 @@ template instances from a given set.
 
 Install the following:
 
-Install the following:
-
 - [.NET Core](https://dotnet.microsoft.com/download).
-- The [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp) from the VS Code Marketplace.
 
 ### Installing
 
