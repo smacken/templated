@@ -1,6 +1,7 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Novacode;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,9 +20,7 @@ namespace templated {
     {
         public string FolderName { get; set; }
         public string SelectedTemplate { get; set; }
-
         public string TemplatePath { get; set; }
-
         public string DataConvention { get; set; }
     }
 
@@ -56,11 +55,20 @@ namespace templated {
                 throw ex;
             }
 
+            // data bind to docs in templated folder
             var templatedFiles = Directory.GetFiles(Path.Combine(folderPath, templateSelected), 
-                "*.docx", 
+                "!(*@(.yaml|.json))", 
                 SearchOption.AllDirectories);
-            foreach(var templateFile in templatedFiles){
-                var input = new StringReader(templateFile);
+            foreach(var templateFile in templatedFiles)
+            {
+                // get the equivalent data template
+                var filename = Path.GetFileNameWithoutExtension(templateFile);
+                var dataTemplate = Path.Combine(folderPath, templateSelected, filename, ".yaml");
+                var fileExtension = Path.GetExtension(templateFile);
+                var mergeExtensions = new List<string>{".doc", ".docx"};
+                if (!File.Exists(dataTemplate) || !mergeExtensions.Contains(fileExtension)) continue;
+
+                var input = new StringReader(dataTemplate);
                 var deserializer = new DeserializerBuilder().Build();
                 var yamlObject = deserializer.Deserialize(input);
 
@@ -83,6 +91,12 @@ namespace templated {
                     if (node.Value.Type == JTokenType.Array){
 
                     }
+                }
+
+                // data merge template file with data
+                using(DocX document = DocX.Load(templateFile))
+                {
+                    
                 }
             }
 

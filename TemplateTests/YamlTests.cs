@@ -16,8 +16,6 @@ namespace tests
     {
         private string sample = ".\\sample.yaml";
 
-        
-
         [Fact]
         public void Should_parse_yaml_constant(){
             var input = new StringReader(Document);

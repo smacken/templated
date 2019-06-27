@@ -11,6 +11,11 @@ template instances from a given set.
 - should include variations of different templates
 - selecting a template from the ui for a new instance will clone the template
 
+Inside a destination folder you can get document templating with data merging.
+- for each document you want replaced with data
+- will only data merge if a data template exists, otherwise will be a simple copy
+- you can also rebind data templates after creation if you want to change data but keep documents
+
 ## Getting Started
 
 1. Run the app by entering the following command in the command shell:
