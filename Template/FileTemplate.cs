@@ -36,7 +36,7 @@ namespace templated {
             {
                 throw ex;
             }
-            return new TemplateResponse();
+            return new TemplateResponse { Status="Completed." };
         }
     }
 }

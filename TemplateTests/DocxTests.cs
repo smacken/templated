@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Novacode;
 using Xunit;
 
@@ -16,27 +17,48 @@ namespace TemplateTests
             return Path.GetFullPath(Path.Combine(dirPath, @"../../../")) + relativePath;
         }
 
+        private string ReplaceFunc(Dictionary<string, string> replacePatterns, string findStr)
+        {
+            if(replacePatterns.ContainsKey(findStr))
+            {
+                return replacePatterns[findStr];
+            }
+            return findStr;
+        }
+
         [Fact]
         public void Should_load_word_doc()
         {
-            using(DocX document = DocX.Load(GetPath("Employment.doc")))
+            var path = Path.GetFullPath("file-sample_100kB.doc");
+            var fileStream = File.Open(path, FileMode.Open);
+            using(DocX document = DocX.Load("file-sample_100kB.docx" )) // GetPath("Employment.doc")))
             {
-                
-                Assert.Equal(1, document.Text.Length);
+                //"Lorem ipsum Lorem ipsum dolor sit amet,"
+                Assert.Equal("Lorem", document.Text.Split(' ')[0]);
             }
         }
 
         [Fact]
         public void Should_replace_text_in_word_doc()
         {
-            // private Dictionary<string, string> _replacePatterns = new Dictionary<string, string>
-            // {
-            //     { "OPPONENT", "Pittsburgh Penguins" },
-            //     { "GAME_TIME", "19h30" },
-            //     { "GAME_NUMBER", "161" },
-            //     { "DATE", "October 18 2016" }
-            // };
-            
+            Dictionary<string, string> replacePatterns = new Dictionary<string, string>()
+            {
+                { "Lorem", "LOREM" }
+            };
+
+            Func<string, string> replace = (findStr) => replacePatterns.ContainsKey(findStr) ? replacePatterns[findStr] : findStr;
+            using(DocX document = DocX.Load("file-sample_100kB.docx" ))
+            {
+                //"Lorem ipsum Lorem ipsum dolor sit amet,"
+                foreach (var item in replacePatterns)
+                {
+                    document.ReplaceText(item.Key, replacePatterns.GetValueOrDefault(item.Key));
+                }
+
+                Assert.Equal("LOREM", document.Text.Split(' ')[0]);
+            }
+
+            File.Delete(@".\temp.docx");
         }
 
         [Fact]

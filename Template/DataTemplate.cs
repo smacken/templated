@@ -26,11 +26,10 @@ namespace templated {
 
     public class DataTemplate : RequestHandler<DataTemplateRequest, TemplateResponse>
     {
+        private string _templatePrefix = "[";
+        private string _templateSuffix = "]";
         protected override TemplateResponse Handle(DataTemplateRequest request)
         {
-            // bind to yaml data file for each file of the template created
-
-            // if no data file exists, just create the files
             var templateFolder = request.FolderName;
             if (string.IsNullOrEmpty(templateFolder))
                 throw new ArgumentException("Invalid template folder");
@@ -38,8 +37,7 @@ namespace templated {
             var baseDir = Directory.GetParent(Path.GetDirectoryName(request.TemplatePath)).FullName;
             var folderPath = Path.Combine(baseDir, templateFolder);
             var templateSelected = request.SelectedTemplate;
-            // if (Directory.Exists(folderPath)) 
-            //     folderPath = FileUtils.UniquePath(folderPath);
+
             try
             {
                 if (!Directory.Exists(folderPath))
@@ -79,14 +77,19 @@ namespace templated {
                 var json = serializer.Serialize(yamlObject);
                 dynamic jsonGraph = JsonConvert.DeserializeObject(json);
                 var token = JToken.Parse(json);
+                var replacePatterns = new Dictionary<string, string>();
                 // we are trying to identify dynamically the type of item within the json graph
                 foreach (KeyValuePair<string, JToken> node in (JObject)token)
                 {
                     // match by key
+                    if (node.Value.Type == JTokenType.String){
+                        replacePatterns.Add($"{_templatePrefix}{node.Key}{_templateSuffix}", node.Value.ToObject<string>());
+                    }
+                    
                     // if (node.Key == "sequence"){
                         
                     // }
-
+                    
                     // match by type
                     if (node.Value.Type == JTokenType.Array){
 
@@ -94,14 +97,30 @@ namespace templated {
                 }
 
                 // data merge template file with data
-                using(DocX document = DocX.Load(templateFile))
+                try
                 {
-                    
+                    using(DocX document = DocX.Load(templateFile))
+                    {
+                        foreach (var item in replacePatterns)
+                        {
+                            document.ReplaceText(item.Key, replacePatterns.GetValueOrDefault(item.Key));
+                        }
+                    }
                 }
+                catch (System.Exception)
+                {
+                    return new TemplateResponse{ Status = "Could not create template."};
+                }
+                
             }
 
-            return new TemplateResponse();
+            return new TemplateResponse{ Status = "Completed." };
         }
+    }
+
+    public class RebindRequest : IRequest<TemplateResponse>{
+        public string Folder { get; set; }
+        public string Template { get; set; }
     }
 
     public class RebindDataTemplate : RequestHandler<DataTemplateRequest, TemplateResponse>

@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 using MediatR;
 using Terminal.Gui;
@@ -17,25 +16,58 @@ namespace templated {
             var appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
             var templates = mediator.Send(new AppPathRequest(appPath)).Result;
-            var templatesList = new RadioGroup(new Rect(4, 3, container.Frame.Width, 200), templates.ToArray());
+            var templatesList = new RadioGroup(new Rect(3, 2, container.Frame.Width, 200), templates.ToArray());
             var onRunTemplate = new Button (3, 10 + templates.Count, "Ok");
-            var folderName = new TextField (18, 4 + templates.Count, 40, "");
+            var onRebindTemplate = new Button (21, 10 + templates.Count, "Rebind");
+            var folderName = new TextField (14, 4 + templates.Count, 40, "");
+            var isDataTemplate = new CheckBox(3, 8, "Use data template");
+            var progress = new ProgressBar (new Rect (68, 1, 10, 1));
+            var console = new Label (3, 11 + templates.Count, "");
 
-            onRunTemplate.Clicked = () => {
-                mediator.Send(new FileTemplateRequest{
-                    FolderName = folderName.Text.ToString(),
-                    TemplatePath = templatePath,
-                    SelectedTemplate = templates.ElementAt(templatesList.Selected)
+            onRunTemplate.Clicked = async () => {
+                console.Text = "Creating template...";
+                TemplateResponse response;
+                if (isDataTemplate.Checked){
+                    response = await mediator.Send(new DataTemplateRequest{
+                        FolderName = folderName.Text.ToString(),
+                        TemplatePath = templatePath,
+                        SelectedTemplate = templates.ElementAt(templatesList.Selected)
+                    });
+                } else {
+                    response = await mediator.Send(new FileTemplateRequest{
+                        FolderName = folderName.Text.ToString(),
+                        TemplatePath = templatePath,
+                        SelectedTemplate = templates.ElementAt(templatesList.Selected)
+                    });
+                }
+                
+                progress.Pulse();
+                console.Text = response.Status;
+            };
+
+            onRebindTemplate.Clicked = async () => {
+                var folder = folderName.Text.ToString(); 
+                if (string.IsNullOrEmpty(folder)){
+                    console.Text = "Please select a folder.";
+                    return;
+                }
+                var response = await mediator.Send(new RebindRequest{
+                    Folder = folderName.Text.ToString(),
+                    Template = templates.ElementAt(templatesList.Selected)
                 });
             };
 
             container.Add(
-                new Label (3, 2, "Select template: "),
+                new Label (3, 1, "Select template: "),
                 templatesList,
-                new Label (2, 4 + templates.Count(), "Folder: "),
+                new Label (3, 4 + templates.Count(), "Folder: "),
                 folderName,
+                isDataTemplate,
                 onRunTemplate,
-                new Button (10, 10 + templates.Count(), "Cancel")
+                new Button (10, 10 + templates.Count(), "Cancel"),
+                onRebindTemplate,
+                progress,
+                console
             );
         }
     }
