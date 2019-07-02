@@ -85,7 +85,34 @@ namespace tests
         }
 
         [Fact]
-        public void Should_convert_yaml_to_json_then_determine_objects(){
+        public void Should_convert_yaml_to_json_then_determine_scalar(){
+            var r = new StringReader(@"
+                scalar: a scalar
+                sequence:
+                - one
+                - two
+                ");
+            var deserializer = new DeserializerBuilder().Build();
+            var yamlObject = deserializer.Deserialize(r);
+
+            var serializer = new SerializerBuilder()
+                .JsonCompatible()
+                .Build();
+
+            var json = serializer.Serialize(yamlObject);
+            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            var token = JToken.Parse(json);
+            // we are trying to identify dynamically the type of item within the json graph
+            foreach (KeyValuePair<string, JToken> node in (JObject)token)
+            {
+                if (node.Key == "scalar"){
+                    Assert.True(node.Value.Type == JTokenType.String);
+                }
+            }
+        }
+
+        [Fact]
+        public void Should_convert_yaml_to_json_then_determine_sequence(){
             var r = new StringReader(@"
                 scalar: a scalar
                 sequence:
@@ -107,6 +134,96 @@ namespace tests
             {
                 if (node.Key == "sequence"){
                     Assert.True(node.Value.Type == JTokenType.Array);
+                }
+            }
+        }
+
+        [Fact]
+        public void Should_convert_yaml_to_json_then_determine_bool(){
+            var r = new StringReader(@"
+                scalar: a scalar
+                bool: true
+                sequence:
+                - one
+                - two
+                ");
+            var deserializer = new DeserializerBuilder().Build();
+            var yamlObject = deserializer.Deserialize(r);
+
+            var serializer = new SerializerBuilder()
+                .JsonCompatible()
+                .Build();
+
+            var json = serializer.Serialize(yamlObject);
+            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            var token = JToken.Parse(json);
+            // we are trying to identify dynamically the type of item within the json graph
+            foreach (KeyValuePair<string, JToken> node in (JObject)token)
+            {
+                if (node.Key == "bool"){
+                    Assert.Equal(node.Value.Type.ToString(), typeof(bool).ToString());
+                    //Assert.True(node.Value.Type == JTokenType.Boolean);
+                }
+            }
+        }
+
+        [Fact]
+        public void Should_convert_yaml_to_json_then_determine_date(){
+            var r = new StringReader(@"
+                scalar: a scalar
+                bool: 'true'
+                date: 2007-08-06
+                sequence:
+                - one
+                - two
+                ");
+            var deserializer = new DeserializerBuilder().Build();
+            var yamlObject = deserializer.Deserialize(r);
+
+            var serializer = new SerializerBuilder()
+                .JsonCompatible()
+                .Build();
+
+            var json = serializer.Serialize(yamlObject);
+            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            var token = JToken.Parse(json);
+            // we are trying to identify dynamically the type of item within the json graph
+            foreach (KeyValuePair<string, JToken> node in (JObject)token)
+            {
+                if (node.Key == "date"){
+                    Assert.Equal(node.Value.Type.ToString(), typeof(DateTime).ToString());
+                    //Assert.True(node.Value.Type == JTokenType.Date);
+                }
+            }
+        }
+
+        [Fact]
+        public void Should_convert_yaml_to_json_then_determine_objects(){
+            var r = new StringReader(@"
+                scalar: a scalar
+                date:        2007-08-06
+                sequence:
+                - one
+                - two
+                customer:
+                    given:   Dorothy
+                    family:  Gale
+                ");
+            var deserializer = new DeserializerBuilder().Build();
+            var yamlObject = deserializer.Deserialize(r);
+
+            var serializer = new SerializerBuilder()
+                .JsonCompatible()
+                .Build();
+
+            var json = serializer.Serialize(yamlObject);
+            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            var token = JToken.Parse(json);
+            // we are trying to identify dynamically the type of item within the json graph
+            foreach (KeyValuePair<string, JToken> node in (JObject)token)
+            {
+                if (node.Key == "customer"){
+                    Assert.True(node.Value.Type == JTokenType.Object);
                 }
             }
         }

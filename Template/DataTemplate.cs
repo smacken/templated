@@ -53,6 +53,8 @@ namespace templated {
                 throw ex;
             }
 
+            CreateDataFiles(folderPath);
+
             // data bind to docs in templated folder
             var templatedFiles = Directory.GetFiles(Path.Combine(folderPath, templateSelected), 
                 "!(*@(.yaml|.json))", 
@@ -81,18 +83,20 @@ namespace templated {
                 // we are trying to identify dynamically the type of item within the json graph
                 foreach (KeyValuePair<string, JToken> node in (JObject)token)
                 {
-                    // match by key
-                    if (node.Value.Type == JTokenType.String){
-                        replacePatterns.Add($"{_templatePrefix}{node.Key}{_templateSuffix}", node.Value.ToObject<string>());
-                    }
-                    
-                    // if (node.Key == "sequence"){
-                        
-                    // }
-                    
-                    // match by type
-                    if (node.Value.Type == JTokenType.Array){
+                    switch (node.Value.Type)
+                    {
+                        case JTokenType.String:
+                        case JTokenType.Float:
+                        case JTokenType.Integer:
+                            replacePatterns.Add($"{_templatePrefix}{node.Key}{_templateSuffix}", node.Value.ToObject<string>());
+                            break;
+                        case JTokenType.Array:
 
+                            break;
+                        case JTokenType.None:
+                        case JTokenType.Null:
+                        default:
+                            break;
                     }
                 }
 
@@ -115,6 +119,25 @@ namespace templated {
             }
 
             return new TemplateResponse{ Status = "Completed." };
+        }
+
+        private void CreateDataFiles(string folderPath)
+        {
+            // create data files if they don't yet exist
+            try
+            {
+                foreach(var templateFile in Directory.EnumerateFiles(folderPath, "*.docx"))
+                {
+                    var filename = Path.GetFileNameWithoutExtension(templateFile);
+                    var yaml = Path.Combine(filename, ".yaml");
+                    if (!File.Exists(yaml))
+                        File.Create(filename);
+                }
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
         }
     }
 

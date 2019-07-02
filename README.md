@@ -16,6 +16,17 @@ Inside a destination folder you can get document templating with data merging.
 - will only data merge if a data template exists, otherwise will be a simple copy
 - you can also rebind data templates after creation if you want to change data but keep documents
 
+Use data template
+- select this option if you want to data merge your templates
+
+This will create a data file for each template document which you can fill in to have your
+desination data merged.
+e.g. Customer.docx , Customer.yaml
+
+Rebinding
+- select rebind to data merge your template from your data file
+If you would like to change your data input simply alter the data file and rebind the template to the data merge.
+
 ## Getting Started
 
 1. Run the app by entering the following command in the command shell:
@@ -37,21 +48,23 @@ Copy exe from /dist/templated.exe
 Either include the exe in path or put the templator relative to the file system to create the templates.
 i.e. Within the /templates/ folder
 
+Set the config path to the location of the file templates
 ```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+config.json > templatePath: 
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Run templated.exe:
+- select the template to run.
+- include the folder to output the templates
 
 ## Running the tests
 
 xUnit testing
+
+```bash
+cd TemplateTests
+dotnet test
+```
 
 
 ### Break down into end to end tests
@@ -92,7 +105,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 * **Scott Mackenzie** - *Initial work* - [Smacktech](https://github.com/smacken)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/smacken/templated/contributors) who participated in this project.
 
 ## License
 
