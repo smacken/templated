@@ -5,6 +5,7 @@ using Novacode;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
@@ -26,8 +27,8 @@ namespace templated {
 
     public class DataTemplate : RequestHandler<DataTemplateRequest, TemplateResponse>
     {
-        private string _templatePrefix = "[";
-        private string _templateSuffix = "]";
+        private string _templatePrefix = "%";
+        private string _templateSuffix = "%";
         protected override TemplateResponse Handle(DataTemplateRequest request)
         {
             var templateFolder = request.FolderName;
@@ -55,10 +56,10 @@ namespace templated {
 
             CreateDataFiles(folderPath);
 
-            // data bind to docs in templated folder
-            var templatedFiles = Directory.GetFiles(Path.Combine(folderPath, templateSelected), 
-                "!(*@(.yaml|.json))", 
-                SearchOption.AllDirectories);
+            var templatedFiles = Directory
+                .EnumerateFiles(Path.Combine(folderPath, templateSelected))
+                .Where(file => !file.ToLower().EndsWith(".yaml"))
+                .ToList();
             foreach(var templateFile in templatedFiles)
             {
                 // get the equivalent data template
@@ -68,37 +69,7 @@ namespace templated {
                 var mergeExtensions = new List<string>{".doc", ".docx"};
                 if (!File.Exists(dataTemplate) || !mergeExtensions.Contains(fileExtension)) continue;
 
-                var input = new StringReader(dataTemplate);
-                var deserializer = new DeserializerBuilder().Build();
-                var yamlObject = deserializer.Deserialize(input);
-
-                var serializer = new SerializerBuilder()
-                    .JsonCompatible()
-                    .Build();
-
-                var json = serializer.Serialize(yamlObject);
-                dynamic jsonGraph = JsonConvert.DeserializeObject(json);
-                var token = JToken.Parse(json);
-                var replacePatterns = new Dictionary<string, string>();
-                // we are trying to identify dynamically the type of item within the json graph
-                foreach (KeyValuePair<string, JToken> node in (JObject)token)
-                {
-                    switch (node.Value.Type)
-                    {
-                        case JTokenType.String:
-                        case JTokenType.Float:
-                        case JTokenType.Integer:
-                            replacePatterns.Add($"{_templatePrefix}{node.Key}{_templateSuffix}", node.Value.ToObject<string>());
-                            break;
-                        case JTokenType.Array:
-
-                            break;
-                        case JTokenType.None:
-                        case JTokenType.Null:
-                        default:
-                            break;
-                    }
-                }
+                var replacePatterns = ParseReplacePattern(dataTemplate);
 
                 // data merge template file with data
                 try
@@ -119,6 +90,42 @@ namespace templated {
             }
 
             return new TemplateResponse{ Status = "Completed." };
+        }
+
+        protected Dictionary<string, string> ParseReplacePattern(string dataTemplate){
+            var replacePatterns = new Dictionary<string, string>();
+            var input = new StringReader(dataTemplate);
+            var deserializer = new DeserializerBuilder().Build();
+            var yamlObject = deserializer.Deserialize(input);
+
+            var serializer = new SerializerBuilder()
+                .JsonCompatible()
+                .Build();
+
+            var json = serializer.Serialize(yamlObject);
+            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            var token = JToken.Parse(json);
+            
+            // we are trying to identify dynamically the type of item within the json graph
+            foreach (KeyValuePair<string, JToken> node in (JObject)token)
+            {
+                switch (node.Value.Type)
+                {
+                    case JTokenType.String:
+                    case JTokenType.Float:
+                    case JTokenType.Integer:
+                        replacePatterns.Add($"{_templatePrefix}{node.Key}{_templateSuffix}", node.Value.ToObject<string>());
+                        break;
+                    case JTokenType.Array:
+
+                        break;
+                    case JTokenType.None:
+                    case JTokenType.Null:
+                    default:
+                        break;
+                }
+            }
+            return replacePatterns;
         }
 
         private void CreateDataFiles(string folderPath)

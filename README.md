@@ -27,6 +27,18 @@ Rebinding
 - select rebind to data merge your template from your data file
 If you would like to change your data input simply alter the data file and rebind the template to the data merge.
 
+Combining
+- include a data template in the template folder.
+- combining will happen post template generation.
+- each required combination should be in the form:
+
+join.yaml
+```yaml
+output.docx:
+- input1.docx
+- input1.docx
+```
+
 ## Getting Started
 
 1. Run the app by entering the following command in the command shell:

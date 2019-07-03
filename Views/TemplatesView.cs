@@ -14,13 +14,13 @@ namespace templated {
         public void Render(View container, string templatePath)
         {
             var appPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
             var templates = mediator.Send(new AppPathRequest(appPath)).Result;
+
             var templatesList = new RadioGroup(new Rect(3, 2, container.Frame.Width, 200), templates.ToArray());
-            var onRunTemplate = new Button (3, 10 + templates.Count, "Ok");
-            var onRebindTemplate = new Button (21, 10 + templates.Count, "Rebind");
             var folderName = new TextField (14, 4 + templates.Count, 40, "");
             var isDataTemplate = new CheckBox(3, 8, "Use data template");
+            var onRunTemplate = new Button (3, 10 + templates.Count, "Ok");
+            var onRebindTemplate = new Button (21, 10 + templates.Count, "Rebind");
             var progress = new ProgressBar (new Rect (68, 1, 10, 1));
             var console = new Label (3, 11 + templates.Count, "");
 
