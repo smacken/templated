@@ -93,7 +93,10 @@ namespace templated {
         }
 
         protected Dictionary<string, string> ParseReplacePattern(string dataTemplate){
-            var replacePatterns = new Dictionary<string, string>();
+            var replacePatterns = new Dictionary<string, string>
+            {
+                {"Date" , DateTime.Now.ToShortDateString()}
+            };
             var input = new StringReader(dataTemplate);
             var deserializer = new DeserializerBuilder().Build();
             var yamlObject = deserializer.Deserialize(input);
