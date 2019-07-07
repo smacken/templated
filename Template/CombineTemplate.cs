@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,12 +30,18 @@ namespace templated
             var folderPath = Path.Combine(baseDir, templateFolder);
             var templateSelected = request.SelectedTemplate;
 
-            var joinFile = Path.Combine(folderPath, templateSelected, "join.yaml");
+            var joinFile = Path.Combine(folderPath, "join.yaml");
             if (!File.Exists(joinFile))
                 return new TemplateResponse();
-            var content = File.ReadAllText(joinFile);
+            //var content = File.ReadAllText(joinFile);
+            string content;
+            using (StreamReader streamReader = new StreamReader(joinFile, Encoding.UTF8))
+            {
+                content = streamReader.ReadToEnd();
+            }
+            var input = new StringReader(content);
             var deserializer = new DeserializerBuilder().Build();
-            var yamlObject = deserializer.Deserialize<string>(content);
+            var yamlObject = deserializer.Deserialize(input);
 
             var serializer = new SerializerBuilder()
                 .JsonCompatible()
@@ -47,8 +54,11 @@ namespace templated
             {
                 if (node.Value.Type == JTokenType.Array){
                     var mergeDocs = node.Value.ToObject<List<string>>();
-                    if (mergeDocs.Count > 2)
-                        AppendDocument(node.Key, mergeDocs[0], mergeDocs[1]);
+                    if (mergeDocs.Count >= 2)
+                        AppendDocument(
+                            Path.Combine(folderPath, node.Key), 
+                            Path.Combine(folderPath, mergeDocs[0]), 
+                            Path.Combine(folderPath, mergeDocs[1]));
                 }
             }
 

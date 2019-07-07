@@ -48,7 +48,7 @@ namespace templated {
                 });
                 
                 progress.Pulse();
-                console.Text = response.Status;
+                console.Text = response.Status ?? "";
             };
 
             onRebindTemplate.Clicked = async () => {

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
@@ -57,14 +58,14 @@ namespace templated {
             CreateDataFiles(folderPath);
 
             var templatedFiles = Directory
-                .EnumerateFiles(Path.Combine(folderPath, templateSelected))
+                .EnumerateFiles(folderPath)
                 .Where(file => !file.ToLower().EndsWith(".yaml"))
                 .ToList();
             foreach(var templateFile in templatedFiles)
             {
                 // get the equivalent data template
                 var filename = Path.GetFileNameWithoutExtension(templateFile);
-                var dataTemplate = Path.Combine(folderPath, templateSelected, filename, ".yaml");
+                var dataTemplate = Path.Combine(folderPath, filename + ".yaml");
                 var fileExtension = Path.GetExtension(templateFile);
                 var mergeExtensions = new List<string>{".doc", ".docx"};
                 if (!File.Exists(dataTemplate) || !mergeExtensions.Contains(fileExtension)) continue;
@@ -95,9 +96,15 @@ namespace templated {
         protected Dictionary<string, string> ParseReplacePattern(string dataTemplate){
             var replacePatterns = new Dictionary<string, string>
             {
-                {"Date" , DateTime.Now.ToShortDateString()}
+                {"%Date%" , DateTime.Now.ToShortDateString()},
+                {"%date%" , DateTime.Now.ToShortDateString()}
             };
-            var input = new StringReader(dataTemplate);
+            string readContents;
+            using (StreamReader streamReader = new StreamReader(dataTemplate, Encoding.UTF8))
+            {
+                readContents = streamReader.ReadToEnd();
+            }
+            var input = new StringReader(readContents);
             var deserializer = new DeserializerBuilder().Build();
             var yamlObject = deserializer.Deserialize(input);
 
@@ -139,9 +146,9 @@ namespace templated {
                 foreach(var templateFile in Directory.EnumerateFiles(folderPath, "*.docx"))
                 {
                     var filename = Path.GetFileNameWithoutExtension(templateFile);
-                    var yaml = Path.Combine(filename, ".yaml");
+                    var yaml = Path.Combine(folderPath, filename + ".yaml");
                     if (!File.Exists(yaml))
-                        File.Create(filename);
+                        File.Create(yaml);
                 }
             }
             catch (System.Exception)
