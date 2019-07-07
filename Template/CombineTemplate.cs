@@ -1,5 +1,3 @@
-
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +16,7 @@ namespace templated
         public string TemplatePath { get; set; }
     }
 
-    public class CombineTempalate : RequestHandler<CombineRequest, TemplateResponse>
+    public class CombineTemplate : RequestHandler<CombineRequest, TemplateResponse>
     {
         protected override TemplateResponse Handle(CombineRequest request)
         {
@@ -32,8 +30,7 @@ namespace templated
 
             var joinFile = Path.Combine(folderPath, "join.yaml");
             if (!File.Exists(joinFile))
-                return new TemplateResponse();
-            //var content = File.ReadAllText(joinFile);
+                return new TemplateResponse{Status = "Unable to combine files."};
             string content;
             using (StreamReader streamReader = new StreamReader(joinFile, Encoding.UTF8))
             {
@@ -55,24 +52,21 @@ namespace templated
                 if (node.Value.Type == JTokenType.Array){
                     var mergeDocs = node.Value.ToObject<List<string>>();
                     if (mergeDocs.Count >= 2)
-                        AppendDocument(
-                            Path.Combine(folderPath, node.Key), 
-                            Path.Combine(folderPath, mergeDocs[0]), 
-                            Path.Combine(folderPath, mergeDocs[1]));
+                        AppendDocument(folderPath, node.Key, mergeDocs[0], mergeDocs[1]);
                 }
             }
 
-            return new TemplateResponse();
+            return new TemplateResponse {Status = "Combine completed."};
         }
 
         //params string[] inputfiles - multiple files
-        protected void AppendDocument(string outputFile, string firstFile, string secondFile)
+        protected void AppendDocument(string outputFolder, string outputFile, string firstFile, string secondFile)
         {
-            using( DocX document1 = DocX.Load(firstFile))
-            using( DocX document2 = DocX.Load(secondFile))
+            using( DocX document1 = DocX.Load(Path.Combine(outputFolder, firstFile)))
+            using( DocX document2 = DocX.Load(Path.Combine(outputFolder, secondFile)))
             {
                 document1.InsertDocument(document2, true);
-                document1.SaveAs(outputFile);
+                document1.SaveAs(Path.Combine(outputFolder, outputFile));
             }
         }
     }

@@ -25,7 +25,9 @@ namespace templated {
             var console = new Label (3, 11 + templates.Count, "");
 
             onRunTemplate.Clicked = async () => {
+                console.Text = "";
                 console.Text = "Creating template...";
+                progress.Pulse();
                 TemplateResponse response;
                 if (isDataTemplate.Checked){
                     response = await mediator.Send(new DataTemplateRequest{
@@ -52,15 +54,29 @@ namespace templated {
             };
 
             onRebindTemplate.Clicked = async () => {
+                console.Text = "";
                 var folder = folderName.Text.ToString(); 
                 if (string.IsNullOrEmpty(folder)){
                     console.Text = "Please select a folder.";
                     return;
                 }
-                var response = await mediator.Send(new RebindRequest{
-                    Folder = folderName.Text.ToString(),
-                    Template = templates.ElementAt(templatesList.Selected)
-                });
+                console.Text = "Binding data templates...";
+                progress.Pulse();
+                try
+                {
+                    var response = await mediator.Send(new RebindRequest{
+                        FolderName = folderName.Text.ToString(),
+                        TemplatePath = templatePath,
+                        SelectedTemplate = templates.ElementAt(templatesList.Selected)
+                    });
+                    console.Text = response.Status ?? "";
+                }
+                catch (System.Exception)
+                {
+                    console.Text = "Unable to rebind data template.";
+                }
+                
+                progress.Pulse();
             };
 
             container.Add(
