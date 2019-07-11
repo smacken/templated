@@ -52,21 +52,25 @@ namespace templated
                 if (node.Value.Type == JTokenType.Array){
                     var mergeDocs = node.Value.ToObject<List<string>>();
                     if (mergeDocs.Count >= 2)
-                        AppendDocument(folderPath, node.Key, mergeDocs[0], mergeDocs[1]);
+                        AppendDocument(folderPath, node.Key, mergeDocs.ToArray());
                 }
             }
 
             return new TemplateResponse {Status = "Combine completed."};
         }
 
-        //params string[] inputfiles - multiple files
-        protected void AppendDocument(string outputFolder, string outputFile, string firstFile, string secondFile)
+        protected void AppendDocument(string outputFolder, string outputFile, params string[] inputfiles)
         {
-            using( DocX document1 = DocX.Load(Path.Combine(outputFolder, firstFile)))
-            using( DocX document2 = DocX.Load(Path.Combine(outputFolder, secondFile)))
+            using( DocX root = DocX.Load(Path.Combine(outputFolder, inputfiles[0])))
             {
-                document1.InsertDocument(document2, true);
-                document1.SaveAs(Path.Combine(outputFolder, outputFile));
+                for (int i = 1; i < inputfiles.Length; i++)
+                {
+                    using( DocX document2 = DocX.Load(Path.Combine(outputFolder, inputfiles[i])))
+                    {
+                        root.InsertDocument(document2, true);
+                    }
+                }
+                root.SaveAs(Path.Combine(outputFolder, outputFile));
             }
         }
     }

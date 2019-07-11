@@ -13,8 +13,8 @@ namespace templated {
 
             while(File.Exists(newFullPath)) 
             {
-                string tempFileName = string.Format("{0}({1})", fileNameOnly, count++);
-                newFullPath = Path.Combine(path, tempFileName + extension);
+                string tempFileName = string.Format("{0}({1}){2}", fileNameOnly, count++, extension);
+                newFullPath = Path.Combine(path, tempFileName);
             }
             return newFullPath;
         }
