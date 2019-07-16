@@ -3,10 +3,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Novacode;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
@@ -229,14 +231,14 @@ namespace templated {
                 .EnumerateFiles(folderPath)
                 .Where(file => !file.ToLower().EndsWith(".yaml"))
                 .ToList();
-            foreach(var templateFile in templatedFiles)
-            {
+            var exceptions = new ConcurrentQueue<Exception>();
+            Parallel.ForEach(templatedFiles, templateFile => {
                 // get the equivalent data template
                 var filename = Path.GetFileNameWithoutExtension(templateFile);
                 var dataTemplate = Path.Combine(folderPath, filename + ".yaml");
                 var fileExtension = Path.GetExtension(templateFile);
                 var mergeExtensions = new List<string>{".doc", ".docx"};
-                if (!File.Exists(dataTemplate) || !mergeExtensions.Contains(fileExtension)) continue;
+                if (!File.Exists(dataTemplate) || !mergeExtensions.Contains(fileExtension)) return;
 
                 var replacePatterns = ParseReplacePattern(dataTemplate);
 
@@ -251,13 +253,14 @@ namespace templated {
                         }
                     }
                 }
-                catch (System.Exception)
+                catch (System.Exception ex)
                 {
-                    return new TemplateResponse{ Status = "Could not create template."};
+                    exceptions.Enqueue(ex);
                 }
-                
-            }
+            });
 
+            if (exceptions.Any())
+                return new TemplateResponse{ Status = "Could not create template."};
             return new TemplateResponse{ Status = "Rebind data template completed." };
         }
     }

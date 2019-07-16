@@ -19,6 +19,19 @@ Inside a destination folder you can get document templating with data merging.
 Use data template
 - select this option if you want to data merge your templates
 
+```yaml
+key: value
+
+list: 
+- option1
+- option2
+- option3
+
+images:
+- ball.jpeg
+- tree.png
+```
+
 This will create a data file for each template document which you can fill in to have your
 desination data merged.
 e.g. Customer.docx , Customer.yaml
