@@ -2,14 +2,8 @@ using System;
 using System.IO;
 using MediatR;
 
-namespace templated {
-
-    public class FileTemplateRequest : IRequest<TemplateResponse> {
-        public string FolderName { get; set; }
-        public string TemplatePath { get; set; }
-        public string SelectedTemplate { get; set; }
-    }
-
+namespace templated
+{
     public class FileTemplate : RequestHandler<FileTemplateRequest, TemplateResponse>
     {
         protected override TemplateResponse Handle(FileTemplateRequest request)

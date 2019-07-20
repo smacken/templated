@@ -14,12 +14,6 @@ using MediatR.Pipeline;
 
 namespace templated
 {
-    public class TemplatedApp
-    {
-        public IConfiguration Config { get; set; }
-        public ServiceProvider Container { get; set; }
-    }
-
     class Program
     {
         public static TemplatedApp Bootstrap()
