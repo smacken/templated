@@ -1,4 +1,4 @@
-namespace tempalted {
+namespace templated {
     using System.IO;
     using System.Collections.Generic;
     public class CsvTemplate {

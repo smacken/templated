@@ -1,0 +1,1 @@
+warp-packer.exe --arch windows-x64 --input_dir bin/Release/netcoreapp2.2/win10-x64/publish --exec templated.exe --output /dist/templated.exe
