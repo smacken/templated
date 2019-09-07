@@ -29,9 +29,9 @@ namespace TemplateTests
         [Fact]
         public void LoadsWordDoc()
         {
-            var path = Path.GetFullPath("file-sample_100kB.doc");
-            var fileStream = File.Open(path, FileMode.Open);
-            using(DocX document = DocX.Load("file-sample_100kB.docx" )) // GetPath("Employment.doc")))
+            //var path = Path.GetFullPath("file-sample_100kB.docx");
+            //var fileStream = File.Open(path, FileMode.Open);
+            using(DocX document = DocX.Load(GetPath("file-sample_100kB.docx" ))) // GetPath("Employment.doc")))
             {
                 //"Lorem ipsum Lorem ipsum dolor sit amet,"
                 Assert.Equal("Lorem", document.Text.Split(' ')[0]);
