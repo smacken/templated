@@ -27,7 +27,7 @@ namespace TemplateTests
         }
 
         [Fact]
-        public void Should_load_word_doc()
+        public void LoadsWordDoc()
         {
             var path = Path.GetFullPath("file-sample_100kB.doc");
             var fileStream = File.Open(path, FileMode.Open);
@@ -39,7 +39,7 @@ namespace TemplateTests
         }
 
         [Fact]
-        public void Should_replace_text_in_word_doc()
+        public void ReplacesTextInWordDoc()
         {
             Dictionary<string, string> replacePatterns = new Dictionary<string, string>()
             {
@@ -59,12 +59,6 @@ namespace TemplateTests
             }
 
             File.Delete(@".\temp.docx");
-        }
-
-        [Fact]
-        public void Should_template_merge_from_yaml()
-        {
-
         }
     }
 }
