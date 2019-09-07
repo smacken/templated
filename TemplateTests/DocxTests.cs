@@ -29,9 +29,7 @@ namespace TemplateTests
         [Fact]
         public void LoadsWordDoc()
         {
-            //var path = Path.GetFullPath("file-sample_100kB.docx");
-            //var fileStream = File.Open(path, FileMode.Open);
-            using(DocX document = DocX.Load(GetPath("file-sample_100kB.docx" ))) // GetPath("Employment.doc")))
+            using(DocX document = DocX.Load(GetPath("file-sample_100kB.docx" )))
             {
                 //"Lorem ipsum Lorem ipsum dolor sit amet,"
                 Assert.Equal("Lorem", document.Text.Split(' ')[0]);
@@ -47,7 +45,7 @@ namespace TemplateTests
             };
 
             Func<string, string> replace = (findStr) => replacePatterns.ContainsKey(findStr) ? replacePatterns[findStr] : findStr;
-            using(DocX document = DocX.Load("file-sample_100kB.docx" ))
+            using(DocX document = DocX.Load(GetPath("file-sample_100kB.docx")))
             {
                 //"Lorem ipsum Lorem ipsum dolor sit amet,"
                 foreach (var item in replacePatterns)
