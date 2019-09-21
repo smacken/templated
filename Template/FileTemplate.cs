@@ -28,9 +28,9 @@ namespace templated
             }
             catch (System.Exception ex)
             {
-                throw ex;
+                return new TemplateResponse { Status = "Failed.", Message = ex.Message };
             }
-            return new TemplateResponse { Status="Completed." };
+            return new TemplateResponse { Status = "Completed." };
         }
     }
 }

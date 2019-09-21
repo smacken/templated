@@ -22,10 +22,9 @@ namespace templated
                 .AddLogging();
             ConfigureServices(serviceProvider);
             var provider = serviceProvider.BuildServiceProvider();
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json");
-            IConfiguration config = new ConfigurationBuilder().AddJsonFile("config.json", true, true).Build();
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("config.json", true, true)
+                .Build();
             return new TemplatedApp {
                 Container = provider,
                 Config = config
@@ -39,7 +38,7 @@ namespace templated
 
             Application.Init();
             var top = Application.Top;
-            var tframe = top.Frame;
+            //var tframe = top.Frame;
             var win = new Window (new Rect (0, 1, top.Frame.Width, top.Frame.Height-1), "Templates");
             var menu = new MenuBar (new MenuBarItem [] {
                 new MenuBarItem ("_File", new MenuItem [] {

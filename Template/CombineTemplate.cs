@@ -26,7 +26,7 @@ namespace templated
             
             var baseDir = Directory.GetParent(Path.GetDirectoryName(request.TemplatePath)).FullName;
             var folderPath = Path.Combine(baseDir, templateFolder);
-            var templateSelected = request.SelectedTemplate;
+            //var templateSelected = request.SelectedTemplate;
 
             var joinFile = Path.Combine(folderPath, "join.yaml");
             if (!File.Exists(joinFile))
@@ -39,13 +39,14 @@ namespace templated
             var input = new StringReader(content);
             var deserializer = new DeserializerBuilder().Build();
             var yamlObject = deserializer.Deserialize(input);
+            input = null;
 
             var serializer = new SerializerBuilder()
                 .JsonCompatible()
                 .Build();
 
             var json = serializer.Serialize(yamlObject);
-            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            //dynamic jsonGraph = JsonConvert.DeserializeObject(json);
             var token = JToken.Parse(json);
             foreach (KeyValuePair<string, JToken> node in (JObject)token)
             {

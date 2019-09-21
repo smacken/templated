@@ -43,12 +43,15 @@ namespace templated {
                     });
                 }
 
+                progress.Pulse();
+                console.Text = response.Status ?? "";
+
                 response = await mediator.Send(new CombineRequest{
                     FolderName = folderName.Text.ToString(),
                     TemplatePath = templatePath,
                     SelectedTemplate = templates.ElementAt(templatesList.Selected)
                 });
-                
+                                
                 progress.Pulse();
                 console.Text = response.Status ?? "";
             };

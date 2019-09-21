@@ -92,13 +92,13 @@ namespace templated
             var input = new StringReader(readContents);
             var deserializer = new DeserializerBuilder().Build();
             var yamlObject = deserializer.Deserialize(input);
-
+            input = null;
             var serializer = new SerializerBuilder()
                 .JsonCompatible()
                 .Build();
 
             var json = serializer.Serialize(yamlObject);
-            dynamic jsonGraph = JsonConvert.DeserializeObject(json);
+            //dynamic jsonGraph = JsonConvert.DeserializeObject(json);
             var token = JToken.Parse(json);
             
             // we are trying to identify dynamically the type of item within the json graph
@@ -126,19 +126,12 @@ namespace templated
         private void CreateDataFiles(string folderPath)
         {
             // create data files if they don't yet exist
-            try
+            foreach(var templateFile in Directory.EnumerateFiles(folderPath, "*.docx"))
             {
-                foreach(var templateFile in Directory.EnumerateFiles(folderPath, "*.docx"))
-                {
-                    var filename = Path.GetFileNameWithoutExtension(templateFile);
-                    var yaml = Path.Combine(folderPath, filename + ".yaml");
-                    if (!File.Exists(yaml))
-                        File.Create(yaml);
-                }
-            }
-            catch (System.Exception)
-            {
-                throw;
+                var filename = Path.GetFileNameWithoutExtension(templateFile);
+                var yaml = Path.Combine(folderPath, filename + ".yaml");
+                if (!File.Exists(yaml))
+                    File.Create(yaml);
             }
         }
     }
