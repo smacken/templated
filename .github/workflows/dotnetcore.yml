@@ -19,7 +19,7 @@ jobs:
         dotnet build --configuration Release
         dotnet build ./TemplateTests/TemplateTests.csproj --configuration Release
     - name: Tests
-      uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v1
       run: dotnet test ./TemplateTests/TemplateTests.csproj --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1.0.2
