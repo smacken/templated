@@ -15,9 +15,11 @@ jobs:
         dotnet-version: 3.0.100-preview8-013656
     - uses: actions/setup-dotnet@v1
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: |
+        dotnet build --configuration Release
+        dotnet build ./TemplateTests/TemplateTests.csproj --configuration Release
     - name: Tests
-      run: dotnet test TemplateTests/ /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
+      run: dotnet test ./TemplateTests/TemplateTests.csproj --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1.0.2
       with:
