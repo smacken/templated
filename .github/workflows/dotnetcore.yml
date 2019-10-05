@@ -16,4 +16,4 @@ jobs:
     - name: Build with dotnet
       run: |
         dotnet build --configuration Release
-        dotnet test TemplateTests/
+        dotnet test TemplateTests/ /p:CollectCoverage=true /p:CoverletOutputFormat=opencover

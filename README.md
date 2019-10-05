@@ -88,7 +88,7 @@ xUnit testing
 
 ```bash
 cd TemplateTests
-dotnet test
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 ```
 
 
