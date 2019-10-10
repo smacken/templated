@@ -6,26 +6,11 @@ jobs:
   build:
 
     runs-on: windows-latest
-    strategy:
-      matrix:
-        dotnet: [ '2.2.103', '3.0.100' ]
     
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.0.100
-    - uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ matrix.dotnet }}
     - name: Build with dotnet
-      run: |
-        export DOTNET_ROOT="$DOTNET_ROOT/${{ matrix.dotnet }}/x64/"
-        dotnet restore
-        dotnet build templated.sln --configuration Release
-        dotnet run -- -h
-    - uses: actions/setup-dotnet@v1
+      run: dotnet build templated.sln --configuration Release
     - name: Tests
       run: dotnet test templated.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
     - name: Upload coverage to Codecov  
