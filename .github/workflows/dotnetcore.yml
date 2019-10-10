@@ -15,7 +15,7 @@ jobs:
     - name: Build with dotnet
       run: dotnet build templated.sln --configuration Release
     - name: Tests
-      run: dotnet test .\TemplateTests\TemplateTests.csproj --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
+      run: dotnet test ./TemplateTests/TemplateTests.csproj --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover 
     - name: Upload coverage to Codecov  
       uses: codecov/codecov-action@v1.0.2
       with:
