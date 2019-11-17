@@ -13,6 +13,7 @@ jobs:
       with:
         dotnet-version: '3.0.100'
     - name: Generate build number
+      id: buildnumber
       uses: einaregilsson/build-number@v1 
       with:
         token: ${{secrets.github_token}} 
@@ -29,7 +30,7 @@ jobs:
     - name: Build NuGet package
         run: |  
           cd templated
-          dotnet pack -c Release -o dist /p:Version=${{ steps.buildnumber.outputs.build_number }}
+          dotnet pack -c Release -o dist /p:Version=${{steps.buildnumber.outputs.build_number}}
 
     - name: Install NuGet client
         uses: warrenbuckley/Setup-Nuget@v1
