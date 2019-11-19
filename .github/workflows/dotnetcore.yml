@@ -28,7 +28,7 @@ jobs:
     #     file: ./TemplateTests/coverage.opencover.xml
     #     name: codecov-umbrella
     - name: Build NuGet package
-      run: dotnet pack .\templated.csproj -c Release -o .\templated\dist /p:Version=${{steps.buildnumber.outputs.build_number}}
+      run: dotnet pack templated.csproj -c Release -o .\templated\dist /p:Version=${{steps.buildnumber.outputs.build_number}}
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
     - name: Add private GitHub registry to NuGet
